@@ -107,7 +107,7 @@ func TestRenderViewComplete(t *testing.T) {
 		{Name: "src", IsDir: true},
 		{Name: "main.go", IsDir: false},
 	}
-	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, false, "", styles)
+	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, false, "", styles, false, "")
 	if result == "" {
 		t.Error("renderView returned empty string")
 	}
@@ -125,7 +125,7 @@ func TestRenderViewComplete(t *testing.T) {
 
 func TestRenderViewWithError(t *testing.T) {
 	styles := NewStyles()
-	result := renderView("/tmp", nil, 0, 0, 80, 24, SortByName, false, "permission denied", styles)
+	result := renderView("/tmp", nil, 0, 0, 80, 24, SortByName, false, "permission denied", styles, false, "")
 	if !strings.Contains(result, "permission denied") {
 		t.Errorf("expected error message in view, got %q", result)
 	}

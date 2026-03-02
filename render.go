@@ -106,9 +106,18 @@ func renderStatusBar(count int, sortMode SortMode, width int, styles Styles) str
 	return left + strings.Repeat(" ", padding) + right
 }
 
+// renderSearchBar renders the search input bar.
+func renderSearchBar(query string, width int, styles Styles) string {
+	prompt := styles.SearchPrompt.Render("  / ")
+	input := styles.SearchInput.Render(query)
+	cursor := styles.SearchCursor.Render("_")
+	return prompt + input + cursor
+}
+
 // renderView composes the full TUI view.
 func renderView(cwd string, entries []DirEntry, cursor, viewportOffset, width, height int,
-	sortMode SortMode, noIcons bool, errMsg string, styles Styles) string {
+	sortMode SortMode, noIcons bool, errMsg string, styles Styles,
+	searchMode bool, searchQuery string) string {
 
 	var sections []string
 
@@ -120,6 +129,9 @@ func renderView(cwd string, entries []DirEntry, cursor, viewportOffset, width, h
 
 	// File list (height - 4 lines: 1 path + 1 sep + 1 sep + 1 status)
 	listHeight := height - 4
+	if searchMode {
+		listHeight-- // search bar takes 1 line
+	}
 	if listHeight < 1 {
 		listHeight = 1
 	}
@@ -128,8 +140,10 @@ func renderView(cwd string, entries []DirEntry, cursor, viewportOffset, width, h
 	// Separator (1 line)
 	sections = append(sections, renderSeparator(width, styles))
 
-	// Status bar or error message (1 line)
-	if errMsg != "" {
+	// Search bar or status bar (1 line)
+	if searchMode {
+		sections = append(sections, renderSearchBar(searchQuery, width, styles))
+	} else if errMsg != "" {
 		sections = append(sections, styles.ErrorMsg.Render("  "+errMsg))
 	} else {
 		sections = append(sections, renderStatusBar(len(entries), sortMode, width, styles))

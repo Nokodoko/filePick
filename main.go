@@ -39,6 +39,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  h/Backspace  Go to parent directory\n")
 		fmt.Fprintf(os.Stderr, "  .            Toggle hidden files\n")
 		fmt.Fprintf(os.Stderr, "  s            Cycle sort mode\n")
+		fmt.Fprintf(os.Stderr, "  /            Fuzzy search (requires rg)\n")
 		fmt.Fprintf(os.Stderr, "  q/Esc/Ctrl-C Quit\n")
 		fmt.Fprintf(os.Stderr, "\nEnvironment:\n")
 		fmt.Fprintf(os.Stderr, "  NO_COLOR=1   Disable all ANSI color output\n")

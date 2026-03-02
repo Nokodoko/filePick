@@ -18,6 +18,7 @@ const (
 	keyToggleHidden
 	keyCycleSort
 	keyQuit
+	keySearch
 )
 
 // resolveKey maps a KeyPressMsg to a keyAction.
@@ -67,6 +68,8 @@ func resolveKey(msg tea.KeyPressMsg) keyAction {
 		return keyCycleSort
 	case "q":
 		return keyQuit
+	case "/":
+		return keySearch
 	}
 
 	return keyNone

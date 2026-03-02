@@ -25,6 +25,9 @@ type Styles struct {
 	ErrorMsg      lipgloss.Style
 	ItemCount     lipgloss.Style
 	SortIndicator lipgloss.Style
+	SearchPrompt  lipgloss.Style
+	SearchInput   lipgloss.Style
+	SearchCursor  lipgloss.Style
 }
 
 // NewStyles creates a new Styles with the color palette from the spec.
@@ -43,6 +46,9 @@ func NewStyles() Styles {
 			ErrorMsg:      lipgloss.NewStyle(),
 			ItemCount:     lipgloss.NewStyle(),
 			SortIndicator: lipgloss.NewStyle(),
+			SearchPrompt:  lipgloss.NewStyle(),
+			SearchInput:   lipgloss.NewStyle(),
+			SearchCursor:  lipgloss.NewStyle(),
 		}
 	}
 
@@ -95,5 +101,16 @@ func NewStyles() Styles {
 		SortIndicator: lipgloss.NewStyle().
 			Foreground(lipgloss.ANSIColor(242)).
 			Faint(true),
+
+		SearchPrompt: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(3)).
+			Bold(true),
+
+		SearchInput: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(15)),
+
+		SearchCursor: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(15)).
+			Bold(true),
 	}
 }
