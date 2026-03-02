@@ -36,9 +36,9 @@ var (
 		{Match: "exact", Pattern: ".gitignore", Icon: "\U000f02a2", Color: lipgloss.ANSIColor(242)},
 		{Match: "exact", Pattern: ".gitmodules", Icon: "\U000f02a2", Color: lipgloss.ANSIColor(242)},
 		{Match: "exact", Pattern: ".gitattributes", Icon: "\U000f02a2", Color: lipgloss.ANSIColor(242)},
-		{Match: "exact", Pattern: "LICENSE", Icon: "\uf718", Color: lipgloss.ANSIColor(3)},
-		{Match: "exact", Pattern: "LICENSE.md", Icon: "\uf718", Color: lipgloss.ANSIColor(3)},
-		{Match: "exact", Pattern: "CHANGELOG.md", Icon: "\uf7d9", Color: lipgloss.ANSIColor(4)},
+		{Match: "exact", Pattern: "LICENSE", Icon: "\U000f0124", Color: lipgloss.ANSIColor(3)},     // md-certificate (was v2 F718)
+		{Match: "exact", Pattern: "LICENSE.md", Icon: "\U000f0124", Color: lipgloss.ANSIColor(3)}, // md-certificate (was v2 F718)
+		{Match: "exact", Pattern: "CHANGELOG.md", Icon: "\U000f02da", Color: lipgloss.ANSIColor(4)}, // md-history (was v2 F7D9)
 		{Match: "exact", Pattern: "README.md", Icon: "\U000f00ba", Color: lipgloss.ANSIColor(3)},
 		{Match: "exact", Pattern: "go.mod", Icon: "\U000f07d3", Color: lipgloss.ANSIColor(6)},
 		{Match: "exact", Pattern: "go.sum", Icon: "\U000f07d3", Color: lipgloss.ANSIColor(242)},
@@ -95,19 +95,19 @@ var (
 		{Match: "extension", Pattern: ".env", Icon: "\uf462", Color: lipgloss.ANSIColor(3)},
 		{Match: "extension", Pattern: ".gitignore", Icon: "\U000f02a2", Color: lipgloss.ANSIColor(242)},
 		{Match: "extension", Pattern: ".dockerignore", Icon: "\U000f0868", Color: lipgloss.ANSIColor(242)},
-		{Match: "extension", Pattern: ".png", Icon: "\uf71e", Color: lipgloss.ANSIColor(5)},
-		{Match: "extension", Pattern: ".jpg", Icon: "\uf71e", Color: lipgloss.ANSIColor(5)},
-		{Match: "extension", Pattern: ".jpeg", Icon: "\uf71e", Color: lipgloss.ANSIColor(5)},
-		{Match: "extension", Pattern: ".gif", Icon: "\uf71e", Color: lipgloss.ANSIColor(5)},
+		{Match: "extension", Pattern: ".png", Icon: "\U000f021f", Color: lipgloss.ANSIColor(5)},  // md-file_image (was v2 F71E)
+		{Match: "extension", Pattern: ".jpg", Icon: "\U000f021f", Color: lipgloss.ANSIColor(5)},  // md-file_image (was v2 F71E)
+		{Match: "extension", Pattern: ".jpeg", Icon: "\U000f021f", Color: lipgloss.ANSIColor(5)}, // md-file_image (was v2 F71E)
+		{Match: "extension", Pattern: ".gif", Icon: "\U000f021f", Color: lipgloss.ANSIColor(5)},  // md-file_image (was v2 F71E)
 		{Match: "extension", Pattern: ".svg", Icon: "\U000f0721", Color: lipgloss.ANSIColor(3)},
-		{Match: "extension", Pattern: ".ico", Icon: "\uf71e", Color: lipgloss.ANSIColor(3)},
+		{Match: "extension", Pattern: ".ico", Icon: "\U000f021f", Color: lipgloss.ANSIColor(3)},  // md-file_image (was v2 F71E)
 		{Match: "extension", Pattern: ".zip", Icon: "\uf410", Color: lipgloss.ANSIColor(1)},
 		{Match: "extension", Pattern: ".tar", Icon: "\uf410", Color: lipgloss.ANSIColor(1)},
 		{Match: "extension", Pattern: ".gz", Icon: "\uf410", Color: lipgloss.ANSIColor(1)},
 		{Match: "extension", Pattern: ".bz2", Icon: "\uf410", Color: lipgloss.ANSIColor(1)},
 		{Match: "extension", Pattern: ".xz", Icon: "\uf410", Color: lipgloss.ANSIColor(1)},
 		{Match: "extension", Pattern: ".7z", Icon: "\uf410", Color: lipgloss.ANSIColor(1)},
-		{Match: "extension", Pattern: ".pdf", Icon: "\uf724", Color: lipgloss.ANSIColor(1)},
+		{Match: "extension", Pattern: ".pdf", Icon: "\U000f0226", Color: lipgloss.ANSIColor(1)}, // md-file_pdf_box (was v2 F724)
 		{Match: "extension", Pattern: ".doc", Icon: "\U000f022c", Color: lipgloss.ANSIColor(4)},
 		{Match: "extension", Pattern: ".docx", Icon: "\U000f022c", Color: lipgloss.ANSIColor(4)},
 		{Match: "extension", Pattern: ".xls", Icon: "\U000f021b", Color: lipgloss.ANSIColor(2)},
