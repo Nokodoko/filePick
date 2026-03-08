@@ -7,7 +7,7 @@ import (
 
 func TestRenderPathBar(t *testing.T) {
 	styles := NewStyles()
-	result := renderPathBar("/home/user/Projects", 80, styles)
+	result := renderPathBar("/home/user/Projects", 80, styles, nil)
 	if result == "" {
 		t.Error("renderPathBar returned empty string")
 	}
@@ -24,7 +24,7 @@ func TestRenderSeparator(t *testing.T) {
 func TestRenderEntryDir(t *testing.T) {
 	styles := NewStyles()
 	entry := DirEntry{Name: "src", IsDir: true}
-	result := renderEntry(entry, false, 80, false, styles)
+	result := renderEntry(entry, false, 80, false, styles, GitNone)
 	if !strings.Contains(result, "src") {
 		t.Errorf("expected entry to contain 'src', got %q", result)
 	}
@@ -33,7 +33,7 @@ func TestRenderEntryDir(t *testing.T) {
 func TestRenderEntryFile(t *testing.T) {
 	styles := NewStyles()
 	entry := DirEntry{Name: "main.go", IsDir: false}
-	result := renderEntry(entry, false, 80, false, styles)
+	result := renderEntry(entry, false, 80, false, styles, GitNone)
 	if !strings.Contains(result, "main.go") {
 		t.Errorf("expected entry to contain 'main.go', got %q", result)
 	}
@@ -42,7 +42,7 @@ func TestRenderEntryFile(t *testing.T) {
 func TestRenderEntrySelected(t *testing.T) {
 	styles := NewStyles()
 	entry := DirEntry{Name: "selected.txt", IsDir: false}
-	result := renderEntry(entry, true, 80, false, styles)
+	result := renderEntry(entry, true, 80, false, styles, GitNone)
 	if !strings.Contains(result, "selected.txt") {
 		t.Errorf("expected selected entry to contain 'selected.txt', got %q", result)
 	}
@@ -51,7 +51,7 @@ func TestRenderEntrySelected(t *testing.T) {
 func TestRenderEntryNoIcons(t *testing.T) {
 	styles := NewStyles()
 	entry := DirEntry{Name: "src", IsDir: true}
-	result := renderEntry(entry, false, 80, true, styles)
+	result := renderEntry(entry, false, 80, true, styles, GitNone)
 	if !strings.Contains(result, ">") {
 		t.Errorf("expected ASCII dir icon '>' in no-icons mode, got %q", result)
 	}
@@ -60,7 +60,7 @@ func TestRenderEntryNoIcons(t *testing.T) {
 func TestRenderEntrySymlink(t *testing.T) {
 	styles := NewStyles()
 	entry := DirEntry{Name: "link", IsDir: false, IsSymlink: true}
-	result := renderEntry(entry, false, 80, false, styles)
+	result := renderEntry(entry, false, 80, false, styles, GitNone)
 	if !strings.Contains(result, "->") {
 		t.Errorf("expected symlink indicator '->', got %q", result)
 	}
@@ -68,7 +68,7 @@ func TestRenderEntrySymlink(t *testing.T) {
 
 func TestRenderFileListEmpty(t *testing.T) {
 	styles := NewStyles()
-	result := renderFileList(nil, 0, 0, 10, 80, false, styles)
+	result := renderFileList(nil, 0, 0, 10, 80, false, styles, nil)
 	if !strings.Contains(result, "empty") {
 		t.Errorf("expected '(empty)' for empty list, got %q", result)
 	}
@@ -81,7 +81,7 @@ func TestRenderFileList(t *testing.T) {
 		{Name: "file1.go", IsDir: false},
 		{Name: "file2.rs", IsDir: false},
 	}
-	result := renderFileList(entries, 0, 0, 10, 80, false, styles)
+	result := renderFileList(entries, 0, 0, 10, 80, false, styles, nil)
 	if !strings.Contains(result, "dir1") {
 		t.Error("expected file list to contain 'dir1'")
 	}
@@ -107,7 +107,7 @@ func TestRenderViewComplete(t *testing.T) {
 		{Name: "src", IsDir: true},
 		{Name: "main.go", IsDir: false},
 	}
-	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, false, "", styles, false, "")
+	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, false, "", styles, false, "", nil)
 	if result == "" {
 		t.Error("renderView returned empty string")
 	}
@@ -123,9 +123,55 @@ func TestRenderViewComplete(t *testing.T) {
 	}
 }
 
+func TestRenderPathBarWithGit(t *testing.T) {
+	t.Setenv("NO_COLOR", "1")
+	styles := NewStyles()
+	gitInfo := &GitInfo{
+		IsRepo: true,
+		Branch: "main",
+	}
+	result := renderPathBar("/home/user/project", 80, styles, gitInfo)
+	if !strings.Contains(result, "main") {
+		t.Errorf("expected branch name 'main' in path bar, got %q", result)
+	}
+}
+
+func TestRenderEntryWithGitStatus(t *testing.T) {
+	t.Setenv("NO_COLOR", "1")
+	styles := NewStyles()
+	entry := DirEntry{Name: "model.go", IsDir: false}
+	result := renderEntry(entry, false, 80, true, styles, GitModified)
+	if !strings.Contains(result, "M") {
+		t.Errorf("expected git status 'M' in entry, got %q", result)
+	}
+}
+
+func TestRenderViewWithGit(t *testing.T) {
+	t.Setenv("NO_COLOR", "1")
+	styles := NewStyles()
+	entries := []DirEntry{
+		{Name: "model.go", IsDir: false},
+	}
+	gitInfo := &GitInfo{
+		IsRepo: true,
+		Branch: "feature-branch",
+		FileStatus: map[string]GitStatus{
+			"model.go": GitModified,
+		},
+		HasChanges: true,
+	}
+	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, true, "", styles, false, "", gitInfo)
+	if !strings.Contains(result, "feature-branch") {
+		t.Errorf("expected branch name in full view, got:\n%s", result)
+	}
+	if !strings.Contains(result, " M") {
+		t.Errorf("expected git modified indicator ' M' in full view, got:\n%s", result)
+	}
+}
+
 func TestRenderViewWithError(t *testing.T) {
 	styles := NewStyles()
-	result := renderView("/tmp", nil, 0, 0, 80, 24, SortByName, false, "permission denied", styles, false, "")
+	result := renderView("/tmp", nil, 0, 0, 80, 24, SortByName, false, "permission denied", styles, false, "", nil)
 	if !strings.Contains(result, "permission denied") {
 		t.Errorf("expected error message in view, got %q", result)
 	}

@@ -28,6 +28,11 @@ type Styles struct {
 	SearchPrompt  lipgloss.Style
 	SearchInput   lipgloss.Style
 	SearchCursor  lipgloss.Style
+	GitBranch     lipgloss.Style
+	GitModified   lipgloss.Style
+	GitStaged     lipgloss.Style
+	GitUntracked  lipgloss.Style
+	GitConflict   lipgloss.Style
 }
 
 // NewStyles creates a new Styles with the color palette from the spec.
@@ -49,6 +54,11 @@ func NewStyles() Styles {
 			SearchPrompt:  lipgloss.NewStyle(),
 			SearchInput:   lipgloss.NewStyle(),
 			SearchCursor:  lipgloss.NewStyle(),
+			GitBranch:     lipgloss.NewStyle(),
+			GitModified:   lipgloss.NewStyle(),
+			GitStaged:     lipgloss.NewStyle(),
+			GitUntracked:  lipgloss.NewStyle(),
+			GitConflict:   lipgloss.NewStyle(),
 		}
 	}
 
@@ -111,6 +121,23 @@ func NewStyles() Styles {
 
 		SearchCursor: lipgloss.NewStyle().
 			Foreground(lipgloss.ANSIColor(15)).
+			Bold(true),
+
+		GitBranch: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(5)).
+			Bold(true),
+
+		GitModified: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(3)),
+
+		GitStaged: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(2)),
+
+		GitUntracked: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(1)),
+
+		GitConflict: lipgloss.NewStyle().
+			Foreground(lipgloss.ANSIColor(1)).
 			Bold(true),
 	}
 }

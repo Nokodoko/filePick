@@ -64,7 +64,7 @@ func TestRenderViewSearchMode(t *testing.T) {
 	entries := []DirEntry{
 		{Name: "model.go", IsDir: false},
 	}
-	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, false, "", styles, true, "model")
+	result := renderView("/home/user/project", entries, 0, 0, 80, 24, SortByName, false, "", styles, true, "model", nil)
 	if !strings.Contains(result, "/") {
 		t.Error("search mode view should contain search prompt")
 	}

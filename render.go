@@ -8,10 +8,17 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// renderPathBar renders the top path bar with truncation.
-func renderPathBar(cwd string, width int, styles Styles) string {
-	path := truncatePath(cwd, width-4)
-	return styles.PathBar.Render("  " + path)
+// renderPathBar renders the top path bar with truncation and optional git branch.
+func renderPathBar(cwd string, width int, styles Styles, gitInfo *GitInfo) string {
+	var branchStr string
+	if gitInfo != nil && gitInfo.IsRepo {
+		branchStr = " " + styles.GitBranch.Render(gitBranchIcon+" "+gitInfo.Branch)
+	}
+
+	// Account for branch indicator width when truncating path
+	branchWidth := lipgloss.Width(branchStr)
+	path := truncatePath(cwd, width-4-branchWidth)
+	return styles.PathBar.Render("  "+path) + branchStr
 }
 
 // renderSeparator renders a horizontal rule separator line.
@@ -19,8 +26,8 @@ func renderSeparator(width int, styles Styles) string {
 	return styles.Separator.Render(strings.Repeat("─", width))
 }
 
-// renderEntry renders a single directory entry line with icon and name.
-func renderEntry(entry DirEntry, selected bool, width int, noIcons bool, styles Styles) string {
+// renderEntry renders a single directory entry line with icon, name, and git status.
+func renderEntry(entry DirEntry, selected bool, width int, noIcons bool, styles Styles, gitStatus GitStatus) string {
 	icon, iconColor := resolveIcon(&entry, noIcons)
 
 	// Build the icon part with color
@@ -59,12 +66,43 @@ func renderEntry(entry DirEntry, selected bool, width int, noIcons bool, styles 
 		nameStr = styles.FileName.Render(name)
 	}
 
-	line := fmt.Sprintf("  %s  %s", iconStr, nameStr)
+	// Build git status indicator
+	var gitIndicator string
+	if gitStatus != GitNone {
+		if sym, ok := gitStatusIcons[gitStatus]; ok {
+			var gitStyle lipgloss.Style
+			switch gitStatus {
+			case GitModified:
+				gitStyle = styles.GitModified
+			case GitStaged, GitAdded:
+				gitStyle = styles.GitStaged
+			case GitUntracked:
+				gitStyle = styles.GitUntracked
+			case GitConflict:
+				gitStyle = styles.GitConflict
+			default:
+				gitStyle = styles.GitModified
+			}
+			if noColor() {
+				gitIndicator = " " + sym
+			} else {
+				gitIndicator = " " + gitStyle.Render(sym)
+			}
+		}
+	}
+
+	line := fmt.Sprintf("  %s  %s%s", iconStr, nameStr, gitIndicator)
 
 	if selected {
 		// Apply selection bar styling across full width
+		var selGit string
+		if gitStatus != GitNone {
+			if sym, ok := gitStatusIcons[gitStatus]; ok {
+				selGit = " " + sym
+			}
+		}
 		line = styles.SelectionBar.Width(width).Render(
-			fmt.Sprintf("  %s  %s", icon, name),
+			fmt.Sprintf("  %s  %s%s", icon, name, selGit),
 		)
 	}
 
@@ -72,7 +110,7 @@ func renderEntry(entry DirEntry, selected bool, width int, noIcons bool, styles 
 }
 
 // renderFileList renders the scrollable list of entries.
-func renderFileList(entries []DirEntry, cursor, viewportOffset, height, width int, noIcons bool, styles Styles) string {
+func renderFileList(entries []DirEntry, cursor, viewportOffset, height, width int, noIcons bool, styles Styles, gitInfo *GitInfo) string {
 	if len(entries) == 0 {
 		empty := styles.HiddenEntry.Render("  (empty)")
 		return empty
@@ -86,7 +124,8 @@ func renderFileList(entries []DirEntry, cursor, viewportOffset, height, width in
 
 	for i := viewportOffset; i < end; i++ {
 		selected := i == cursor
-		lines = append(lines, renderEntry(entries[i], selected, width, noIcons, styles))
+		gs := lookupGitStatus(gitInfo, entries[i].Name)
+		lines = append(lines, renderEntry(entries[i], selected, width, noIcons, styles, gs))
 	}
 
 	return strings.Join(lines, "\n")
@@ -117,12 +156,12 @@ func renderSearchBar(query string, width int, styles Styles) string {
 // renderView composes the full TUI view.
 func renderView(cwd string, entries []DirEntry, cursor, viewportOffset, width, height int,
 	sortMode SortMode, noIcons bool, errMsg string, styles Styles,
-	searchMode bool, searchQuery string) string {
+	searchMode bool, searchQuery string, gitInfo *GitInfo) string {
 
 	var sections []string
 
 	// Path bar (1 line)
-	sections = append(sections, renderPathBar(cwd, width, styles))
+	sections = append(sections, renderPathBar(cwd, width, styles, gitInfo))
 
 	// Separator (1 line)
 	sections = append(sections, renderSeparator(width, styles))
@@ -135,7 +174,7 @@ func renderView(cwd string, entries []DirEntry, cursor, viewportOffset, width, h
 	if listHeight < 1 {
 		listHeight = 1
 	}
-	sections = append(sections, renderFileList(entries, cursor, viewportOffset, listHeight, width, noIcons, styles))
+	sections = append(sections, renderFileList(entries, cursor, viewportOffset, listHeight, width, noIcons, styles, gitInfo))
 
 	// Separator (1 line)
 	sections = append(sections, renderSeparator(width, styles))

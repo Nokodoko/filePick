@@ -34,6 +34,9 @@ type AppModel struct {
 	watcher *fsnotify.Watcher
 	program *tea.Program
 
+	// Git integration
+	gitInfo GitInfo
+
 	// Display
 	styles Styles
 
@@ -86,6 +89,7 @@ func (m *AppModel) loadDir() {
 	m.entries = entries
 	sortEntries(m.entries, m.sortMode, m.dirsFirst)
 	m.filteredEntries = filterHidden(m.entries, m.showHidden)
+	m.gitInfo = detectGitInfo(m.cwd)
 	m.clampCursor()
 }
 
@@ -430,6 +434,7 @@ func (m *AppModel) View() tea.View {
 		m.styles,
 		m.searchMode,
 		m.searchQuery,
+		&m.gitInfo,
 	))
 	v.AltScreen = true
 	return v

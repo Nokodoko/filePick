@@ -147,3 +147,136 @@ func TestWatcherSwitchWatch(t *testing.T) {
 		}
 	}
 }
+
+func TestWatchWorktreeDirs(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Create .git/worktrees directory
+	gitWorktrees := filepath.Join(tmpDir, ".git", "worktrees")
+	err := os.MkdirAll(gitWorktrees, 0o755)
+	if err != nil {
+		t.Fatalf("failed to create .git/worktrees: %v", err)
+	}
+
+	// Create .claude/worktrees directory
+	claudeWorktrees := filepath.Join(tmpDir, ".claude", "worktrees")
+	err = os.MkdirAll(claudeWorktrees, 0o755)
+	if err != nil {
+		t.Fatalf("failed to create .claude/worktrees: %v", err)
+	}
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		t.Fatalf("failed to create watcher: %v", err)
+	}
+	defer watcher.Close()
+
+	watchWorktreeDirs(watcher, tmpDir)
+
+	watchList := watcher.WatchList()
+
+	foundGit := false
+	foundClaude := false
+	for _, w := range watchList {
+		if w == gitWorktrees {
+			foundGit = true
+		}
+		if w == claudeWorktrees {
+			foundClaude = true
+		}
+	}
+
+	if !foundGit {
+		t.Error(".git/worktrees not in watch list")
+	}
+	if !foundClaude {
+		t.Error(".claude/worktrees not in watch list")
+	}
+}
+
+func TestWatchWorktreeDirsMissing(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Don't create any worktree dirs — they should be silently skipped
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		t.Fatalf("failed to create watcher: %v", err)
+	}
+	defer watcher.Close()
+
+	watchWorktreeDirs(watcher, tmpDir)
+
+	watchList := watcher.WatchList()
+	if len(watchList) != 0 {
+		t.Errorf("expected empty watch list for missing dirs, got %v", watchList)
+	}
+}
+
+func TestSwitchWatchCleansWorktreeDirs(t *testing.T) {
+	dir1 := t.TempDir()
+	dir2 := t.TempDir()
+
+	// Create worktree dirs in dir1
+	gitWT1 := filepath.Join(dir1, ".git", "worktrees")
+	err := os.MkdirAll(gitWT1, 0o755)
+	if err != nil {
+		t.Fatalf("failed to mkdir: %v", err)
+	}
+
+	// Create worktree dirs in dir2
+	claudeWT2 := filepath.Join(dir2, ".claude", "worktrees")
+	err = os.MkdirAll(claudeWT2, 0o755)
+	if err != nil {
+		t.Fatalf("failed to mkdir: %v", err)
+	}
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		t.Fatalf("failed to create watcher: %v", err)
+	}
+	defer watcher.Close()
+
+	// Initial setup: watch dir1 + its worktree dirs
+	err = watcher.Add(dir1)
+	if err != nil {
+		t.Fatalf("failed to add dir1: %v", err)
+	}
+	watchWorktreeDirs(watcher, dir1)
+
+	// Verify dir1's git worktrees dir is watched
+	found := false
+	for _, w := range watcher.WatchList() {
+		if w == gitWT1 {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("dir1 .git/worktrees not watched before switch")
+	}
+
+	// Switch to dir2
+	err = switchWatch(watcher, dir1, dir2)
+	if err != nil {
+		t.Fatalf("switchWatch failed: %v", err)
+	}
+
+	// Verify dir1's worktree dir is no longer watched
+	for _, w := range watcher.WatchList() {
+		if w == gitWT1 {
+			t.Error("dir1 .git/worktrees still watched after switch")
+		}
+	}
+
+	// Verify dir2's claude worktrees dir IS watched
+	found = false
+	for _, w := range watcher.WatchList() {
+		if w == claudeWT2 {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("dir2 .claude/worktrees not watched after switch")
+	}
+}
