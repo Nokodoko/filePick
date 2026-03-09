@@ -7,7 +7,9 @@
  ╚═╝     ╚═╝╚══════╝╚══════╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝
 -->
 
-<img src="filepick_banner_wide.jpg" width="100%"/>
+<div align="center">
+  <img src="filepick_banner.png" width="600"/>
+</div>
 
 <div align="center">
   <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white"/>
